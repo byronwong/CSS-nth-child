@@ -1,32 +1,37 @@
 
 // Gulp Config
 // ===========
-
+'use strict';
 
 // REQUIRE
 // -------
-var gulp = 			require('gulp'),
-	browserSync = 	require('browser-sync').create(),
-	concat = 		require('gulp-concat'),
-	uglify = 		require('gulp-uglify'),
-	sourcemaps = 	require('gulp-sourcemaps');
+    var gulp    =   require('gulp'),
+    browserSync = 	require('browser-sync').create(),
 
+    // CSS
+    csslint     =   require('gulp-csslint'),
 
-// ENVIRONMENT
-// -----------
-var development = './src/',
-	production = './dist/',
-	environment = production;
+    // JS
+    concat      = 	require('gulp-concat'),
+    uglify      = 	require('gulp-uglify'),
+    sourcemaps  = 	require('gulp-sourcemaps'),
+    jshint      =   require('gulp-jshint'),
+    stylish     =   require('jshint-stylish'),
 
+    // UTIL
+    plumber     =   require('gulp-plumber'),
+    bump        =   require('gulp-bump');
 
 // OTHER PLUGINS
 // -------------
 // var connect = require('gulp-connect'); -- a simple web server
 
-var errorlog = function(){
-	console.error.bind(console);
-	this.emit('end');
-};
+
+// ENVIRONMENT
+// -----------
+// To change the environment use: NODE_ENV=production gulp
+// Sets the server environment to 'production' | 'development' (default)
+var env = process.env.NODE_ENV || 'development';    
 
 
 // TASKS
@@ -40,21 +45,67 @@ gulp.task('html', function(){
 
 
 // CSS
-gulp.task('css', function(){
+// Lint task - note normalize ignored as this causes errors
+gulp.task('css-lint', function() {
+  gulp.src(['./src/css/*.css', '!./src/css/*.css'])
+  .pipe(plumber())
+  .pipe(csslint())
+  .pipe(csslint.reporter('compact'))
+  .pipe(csslint.reporter('fail'));
+});
+
+
+gulp.task('css',['css-lint'], function(){
 	return gulp.src('./src/css/*.css')
+    .pipe(plumber())
 	.pipe(gulp.dest('./dist/css/'));
 });
 
+
 // JS
-gulp.task('js', function() {
+// LINT the JS
+gulp.task('js-hint', function() {
   return gulp.src('./src/js/*.js')
-  	// .pipe(sourcemaps.init())
-    // .pipe(sourcemaps.write('../maps'))
-    // .on('error', errorlog)
-    .pipe(concat('scripts.js'))
-    .on('error', errorlog)
-    .pipe(uglify())
-    .pipe(gulp.dest('./dist/js'));
+  .pipe(plumber())
+  .pipe(jshint())
+  .pipe(jshint.reporter(stylish,{ verbose: true }))
+  .pipe(jshint.reporter('fail'));
+});
+
+
+// Output JS files
+gulp.task('js',['js-hint'], function() {
+
+    // If environment is in 'development' (default) run source maps and do not minify
+    // Else If environment is in 'production' concat and minify
+    if(env === 'development'){
+
+        return gulp.src('./src/js/*.js')
+        .pipe(plumber())
+        .pipe(concat('scripts.js'))
+        .pipe(sourcemaps.init())
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest('./dist/js'));
+
+    } else if (env === 'production'){
+
+        return gulp.src('./src/js/*.js')
+        .pipe(plumber())
+        .pipe(concat('scripts.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest('./dist/js'));
+
+    }
+
+});
+
+
+// BUMP
+// Updates the package version 
+gulp.task('bump', function(){
+  gulp.src('./package.json')
+  .pipe(bump())
+  .pipe(gulp.dest('./'));
 });
 
 
@@ -71,7 +122,7 @@ gulp.task('serve', ['html','css','js'], function () {
     // Serve files from the root of this project
     browserSync.init({
         server: {
-            baseDir: environment,
+            baseDir: './dist/',
         },
         port: 8000,
         ui : {
@@ -84,9 +135,9 @@ gulp.task('serve', ['html','css','js'], function () {
     // all browsers reload after tasks are complete.
     // serve is now handling watch
     // gulp.watch(<sourcepath>, <[task(s)]>, callback);
-    gulp.watch("./src/index.html",['html-watch']);
-    gulp.watch("./src/css/*.css",['css-watch']);
-    gulp.watch("./src/js/*.js",['js-watch']);
+    gulp.watch('./src/index.html',['html-watch']);
+    gulp.watch('./src/css/*.css',['css-watch']);
+    gulp.watch('./src/js/*.js',['js-watch']);
 
 });
 
@@ -95,4 +146,4 @@ gulp.task('serve', ['html','css','js'], function () {
 // DEFAULT GULP TASK
 gulp.task('default', [
 	'serve'
-]);
+    ]);

@@ -10,7 +10,7 @@
   ================================================================= -->
 
   <meta charset="utf-8">
-  <title>Base Kit</title>
+  <title>Nth Child</title>
 
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/style.css">
@@ -20,9 +20,61 @@
 
 <body>
 
-  <h1>Hello World!</h1>
+  <h1>Nth Child</h1>
 
-  <button class="test">Test</button>
+  <!-- Resources
+
+  https://css-tricks.com/how-nth-child-works/
+
+  https://css-tricks.com/useful-nth-child-recipies/
+
+  https://css-tricks.com/examples/nth-child-tester/
+
+  Note: apart from the key words even and odd, the nth-child puedo selector takes an expression that evaluates to a value.
+  Also to note that 'n' can take the value of 0,1,2,3 and so on.
+
+  So when you are creating an expression:
+
+  (5) = 5th element
+
+
+  //
+  3n
+  Resolves to:
+
+  3 x 0 = 0th element
+  3 x 1 = 1st element
+  3 x 2 = 2nd element
+  3 x 3 = 3rd element
+
+
+  //
+  3n + 4
+
+  3 x 0 + 4 = 4th element
+  3 x 1 + 4 = 7th element
+  3 x 2 + 4 = 10th element
+  3 x 3 + 4 = 12th element
+
+
+  //
+  nth-child(n+6) // child items 6 and above
+  
+  0 + 6 = 6th element
+  1 + 6 = 7th element
+  2 x 6 = 8th element
+  3 x 6 = 9th element
+
+
+  // 
+  nth-child(-n+5) // first five
+  
+  - 0 + 5 = 5th element
+  - 1 + 5 = 4th element
+  - 2 x 5 = 3th element
+  - 3 x 5 = 2th element
+
+  -->
 
   <script src="js/scripts.js"></script>
 
